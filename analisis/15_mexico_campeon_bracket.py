@@ -78,54 +78,82 @@ def partido_eliminatorio(eq_a, eq_b, ranks, ronda):
 
     if r < pw:
         if ga <= gb: ga = gb + 1
-        return eq_a, (ga, gb)
+        return eq_a, (ga, gb), False
     elif r < pw + pe:
         # empate + penales; México 0/2 mundiales, 1/3 CONCACAF → 30%
         while ga != gb: gb = int(poisson.rvs(max(0.3, xg_b)))
         if "México" in (eq_a, eq_b):
-            p_mx = 0.30
-            ganador = "México" if np.random.rand() < p_mx else (eq_b if eq_a == "México" else eq_a)
+            ganador = "México" if np.random.rand() < 0.30 else (eq_b if eq_a == "México" else eq_a)
         else:
             ganador = eq_a if np.random.rand() < 0.50 else eq_b
-        return ganador, (ga, gb)
+        return ganador, (ga, gb), True   # True = fueron penales
     else:
         if gb <= ga: gb = ga + 1
-        return eq_b, (ga, gb)
+        return eq_b, (ga, gb), False
+
+
+# ─── colores ANSI ────────────────────────────────────────────────────────────
+V  = "\033[92m"   # verde
+R  = "\033[91m"   # rojo
+Y  = "\033[93m"   # amarillo
+C  = "\033[96m"   # cyan
+W  = "\033[97m"   # blanco
+D  = "\033[90m"   # gris oscuro
+B  = "\033[1m"    # bold
+X  = "\033[0m"    # reset
+
+
+def log_partido_mx(ronda, rival, score, gano, penales=False):
+    marca = f"{score[0]}-{score[1]}"
+    pen_txt = f"{D} (pen){X}" if penales else ""
+    if gano:
+        print(f"  {C}{B}{ronda:6}{X}  {W}Mexico {V}{B}{marca}{X}{W} {rival}{X}{pen_txt}  {V}{B}AVANZA{X}")
+    else:
+        print(f"  {C}{B}{ronda:6}{X}  {W}Mexico {R}{B}{marca}{X}{W} {rival}{X}{pen_txt}  {R}{B}ELIMINADO{X}")
 
 
 def simular_hasta_que_gane_mexico():
     intentos = 0
-    etapas = {"R32": 0, "R16": 0, "QF": 0, "SF": 0, "Final": 0}
-    print("Buscando simulacion donde Mexico sea campeon...")
-    print("(Mexico gana el mundial ~1-2% de las veces, puede tomar ~50-100 intentos)\n")
+    conteo = {"R32": 0, "R16": 0, "QF": 0, "SF": 0, "Final": 0}
+
+    print(f"\n{B}{Y}Buscando simulacion donde Mexico gane el Mundial...{X}")
+    print(f"{D}(probabilidad ~1-2% por torneo, puede tomar 50-150 intentos){X}\n")
 
     while True:
         intentos += 1
         resultado = simular_torneo_completo()
         etapa = resultado.get("etapa_mexico", "R32")
+        log_mx  = resultado.get("log_mexico", [])
 
-        # contar hasta donde llego Mexico en este intento
-        if etapa in etapas:
-            etapas[etapa] += 1
+        # encabezado del intento
+        print(f"{D}{'─'*52}{X}")
+        print(f"{B}{W}Intento #{intentos}{X}")
 
-        if intentos % 10 == 0:
-            total = sum(etapas.values())
-            acum = 0
-            partes = []
-            for e in ["R32", "R16", "QF", "SF", "Final"]:
-                acum += etapas.get(e, 0)
-            llegaron_mas_lejos = intentos - acum
-            print(f"  intento #{intentos:4d} | "
-                  f"R32: {etapas['R32']:3d}  "
-                  f"R16: {etapas['R16']:3d}  "
-                  f"QF: {etapas['QF']:3d}  "
-                  f"SF: {etapas['SF']:3d}  "
-                  f"Final: {etapas['Final']:3d}  "
-                  f"Campeon: {llegaron_mas_lejos:3d}", end='\r')
+        if not log_mx:
+            print(f"  {R}{B}GRUPOS{X}  {D}Mexico eliminado en fase de grupos{X}")
+        else:
+            for entrada in log_mx:
+                penales = entrada.get("penales", False)
+                log_partido_mx(entrada["ronda"], entrada["rival"],
+                               entrada["score"], entrada["gano"], penales)
 
         if resultado["campeon"] == "México":
-            print(f"\n\nMexico campeon en el intento #{intentos}!")
+            print(f"\n{B}{V}{'★'*52}{X}")
+            print(f"{B}{V}  MEXICO CAMPEON DEL MUNDO — intento #{intentos}{X}")
+            print(f"{B}{V}{'★'*52}{X}\n")
             return resultado
+
+        if etapa in conteo:
+            conteo[etapa] += 1
+
+        # resumen acumulado cada 20 intentos
+        if intentos % 20 == 0:
+            total_elim = sum(conteo.values())
+            camp_hasta_ahora = intentos - total_elim
+            print(f"\n{D}  [ acumulado #{intentos} ]  "
+                  f"R32:{conteo['R32']}  R16:{conteo['R16']}  "
+                  f"QF:{conteo['QF']}  SF:{conteo['SF']}  "
+                  f"Final:{conteo['Final']}  camp:{camp_hasta_ahora}{X}\n")
 
 
 def simular_torneo_completo():
@@ -154,48 +182,55 @@ def simular_torneo_completo():
     for i in range(8, 12):
         clasificados[f"T{i+1}"] = "?"
 
+    log_mexico = []
+
+    def jugar(eq_a, eq_b, ronda_nombre):
+        ganador, score, penales = partido_eliminatorio(eq_a, eq_b, ranks, ronda_nombre)
+        if "México" in (eq_a, eq_b):
+            rival = eq_b if eq_a == "México" else eq_a
+            gano  = ganador == "México"
+            # score siempre desde perspectiva de Mexico
+            s = score if eq_a == "México" else (score[1], score[0])
+            log_mexico.append({"ronda": ronda_nombre, "rival": rival,
+                                "score": s, "gano": gano, "penales": penales})
+        return {"equipo_a": eq_a, "equipo_b": eq_b, "ganador": ganador,
+                "score": score, "penales": penales}
+
     # R32
     r32 = []
     for slot_a, slot_b in BRACKET_R32:
         eq_a = clasificados.get(slot_a, "?")
         eq_b = clasificados.get(slot_b, "?")
-        ganador, score = partido_eliminatorio(eq_a, eq_b, ranks, "R32")
-        r32.append({"equipo_a": eq_a, "equipo_b": eq_b, "ganador": ganador, "score": score})
+        r32.append(jugar(eq_a, eq_b, "R32"))
 
     # R16
     r16 = []
     r32g = [p["ganador"] for p in r32]
     for i in range(0, 16, 2):
-        eq_a, eq_b = r32g[i], r32g[i+1]
-        ganador, score = partido_eliminatorio(eq_a, eq_b, ranks, "R16")
-        r16.append({"equipo_a": eq_a, "equipo_b": eq_b, "ganador": ganador, "score": score})
+        r16.append(jugar(r32g[i], r32g[i+1], "R16"))
 
     # QF
     qf = []
     r16g = [p["ganador"] for p in r16]
     for i in range(0, 8, 2):
-        eq_a, eq_b = r16g[i], r16g[i+1]
-        ganador, score = partido_eliminatorio(eq_a, eq_b, ranks, "QF")
-        qf.append({"equipo_a": eq_a, "equipo_b": eq_b, "ganador": ganador, "score": score})
+        qf.append(jugar(r16g[i], r16g[i+1], "QF"))
 
     # SF
     sf = []
     qfg = [p["ganador"] for p in qf]
     for i in range(0, 4, 2):
-        eq_a, eq_b = qfg[i], qfg[i+1]
-        ganador, score = partido_eliminatorio(eq_a, eq_b, ranks, "SF")
-        sf.append({"equipo_a": eq_a, "equipo_b": eq_b, "ganador": ganador, "score": score})
+        sf.append(jugar(qfg[i], qfg[i+1], "SF"))
 
     # Final
     sfg = [p["ganador"] for p in sf]
-    campeon, score_final = partido_eliminatorio(sfg[0], sfg[1], ranks, "Final")
-    final = {"equipo_a": sfg[0], "equipo_b": sfg[1], "ganador": campeon, "score": score_final}
+    final_partido = jugar(sfg[0], sfg[1], "Final")
+    campeon = final_partido["ganador"]
 
     # donde quedo Mexico
     r32g  = [p["ganador"] for p in r32]
     r16g  = [p["ganador"] for p in r16]
     qfg   = [p["ganador"] for p in qf]
-    sfg   = [p["ganador"] for p in sf]
+    sfg_g = [p["ganador"] for p in sf]
 
     if "México" not in r32g:
         etapa_mx = "R32"
@@ -203,7 +238,7 @@ def simular_torneo_completo():
         etapa_mx = "R16"
     elif "México" not in qfg:
         etapa_mx = "QF"
-    elif "México" not in sfg:
+    elif "México" not in sfg_g:
         etapa_mx = "SF"
     elif campeon != "México":
         etapa_mx = "Final"
@@ -213,7 +248,8 @@ def simular_torneo_completo():
     return {
         "campeon": campeon,
         "etapa_mexico": etapa_mx,
-        "r32": r32, "r16": r16, "qf": qf, "sf": sf, "final": final,
+        "log_mexico": log_mexico,
+        "r32": r32, "r16": r16, "qf": qf, "sf": sf, "final": final_partido,
         "clasificados": clasificados,
     }
 
@@ -270,16 +306,11 @@ def main():
     final_p      = res["final"]
     campeon      = res["campeon"]
 
-    print("\nCamino de Mexico:")
-    for ronda, partidos in [("R32", r32_partidos), ("R16", r16_partidos),
-                             ("QF", qf_partidos), ("SF", sf_partidos)]:
-        for p in partidos:
-            if "México" in (p["equipo_a"], p["equipo_b"]):
-                rival = p["equipo_b"] if p["equipo_a"] == "México" else p["equipo_a"]
-                s = p["score"]
-                print(f"  {ronda:5s}: Mexico {s[0]}-{s[1]} {rival}  → {p['ganador']}")
-    s = final_p["score"]
-    print(f"  Final: {final_p['equipo_a']} {s[0]}-{s[1]} {final_p['equipo_b']}  → CAMPEON: {campeon}")
+    print(f"\n{B}{C}Camino completo de Mexico:{X}")
+    for entrada in res.get("log_mexico", []):
+        pen = " (penales)" if entrada.get("penales") else ""
+        s = entrada["score"]
+        print(f"  {V}{B}{entrada['ronda']:6}{X}  Mexico {s[0]}-{s[1]} {entrada['rival']}{pen}")
 
     # ─── Figura ──────────────────────────────────────────────────────────────
     fig, ax = plt.subplots(figsize=(26, 18))
