@@ -80,9 +80,13 @@ def partido_eliminatorio(eq_a, eq_b, ranks, ronda):
         if ga <= gb: ga = gb + 1
         return eq_a, (ga, gb)
     elif r < pw + pe:
-        # empate + penales
+        # empate + penales; México 0/2 mundiales, 1/3 CONCACAF → 30%
         while ga != gb: gb = int(poisson.rvs(max(0.3, xg_b)))
-        ganador = eq_a if np.random.rand() < 0.5 else eq_b
+        if "México" in (eq_a, eq_b):
+            p_mx = 0.30
+            ganador = "México" if np.random.rand() < p_mx else (eq_b if eq_a == "México" else eq_a)
+        else:
+            ganador = eq_a if np.random.rand() < 0.50 else eq_b
         return ganador, (ga, gb)
     else:
         if gb <= ga: gb = ga + 1
@@ -93,7 +97,7 @@ def simular_hasta_que_gane_mexico():
     intentos = 0
     etapas = {"R32": 0, "R16": 0, "QF": 0, "SF": 0, "Final": 0}
     print("Buscando simulacion donde Mexico sea campeon...")
-    print("(Mexico gana el mundial ~4% de las veces, puede tomar ~25 intentos en promedio)\n")
+    print("(Mexico gana el mundial ~1-2% de las veces, puede tomar ~50-100 intentos)\n")
 
     while True:
         intentos += 1

@@ -94,8 +94,11 @@ def simular_partido_eliminatorio(eq_a, eq_b, ranks, ronda="R32"):
     if r < pw:
         return eq_a
     elif r < pw + pe:
-        # empate → penales
-        return eq_a if np.random.rand() < 0.5 else eq_b
+        # empate → penales; México tiene historial 0/2 mundiales, 1/3 CONCACAF → ~30%
+        if "México" in (eq_a, eq_b):
+            p_mx = 0.30
+            return "México" if np.random.rand() < p_mx else (eq_b if eq_a == "México" else eq_a)
+        return eq_a if np.random.rand() < 0.50 else eq_b
     return eq_b
 
 
