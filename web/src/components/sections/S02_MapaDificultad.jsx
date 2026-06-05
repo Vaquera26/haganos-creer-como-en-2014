@@ -64,7 +64,7 @@ export default function S02_MapaDificultad() {
       title="Mapa de Dificultad del Camino"
       subtitle="En 2018 México ganó el grupo con siete puntos y le tocó Brasil en octavos. Perdió 2-0. Aquí el bracket importa doble: no solo determina los rivales sino también la sede. Grupos y posiblemente R32 y R16 pueden ser en México — con todo lo que eso implica en altitud y afición. Pero si México llega a cuartos, el partido ya es en Estados Unidos. Terminar primero del grupo no es lo mismo que terminar segundo, y en este formato esa diferencia puede ser enorme.">
 
-      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
+      <div className="g-main">
 
         {/* ── HEATMAP ── */}
         <div className="card" style={{ padding: 0, overflow: "hidden" }}>

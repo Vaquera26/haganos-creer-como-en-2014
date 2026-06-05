@@ -2,7 +2,7 @@ import imgHero from "../../mundiales/Seleccion-mexicana-HIRVING.jpeg";
 
 export default function Hero() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "68vh" }}>
+    <div className="img-section-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "68vh" }}>
 
       {/* Columna izquierda — texto */}
       <div style={{
@@ -76,7 +76,7 @@ export default function Hero() {
       </div>
 
       {/* Columna derecha — imagen */}
-      <div style={{ position: "relative", overflow: "hidden" }}>
+      <div className="img-col" style={{ position: "relative", overflow: "hidden" }}>
         <img
           src={imgHero}
           alt="Selección Mexicana"

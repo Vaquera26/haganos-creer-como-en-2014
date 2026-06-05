@@ -29,7 +29,7 @@ export default function S07_MexicoVsHistoria() {
       title="México contra su Historia"
       subtitle="En 1970 y 1986 México fue anfitrión único: todos sus partidos, desde el primero hasta el último, fueron en casa. En 2026 es co-anfitrión — y eso es diferente. Los grupos y las primeras rondas eliminatorias son en México, pero si llega a cuartos de final, juega en Estados Unidos. El patrón histórico dice que México solo fue lejos cuando fue local de verdad, en todo el torneo. Esta vez esa protección tiene límite."
       image={imgRafa}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="g-2">
         <div className="card">
           <div className="chart-label">
             Ronda alcanzada por Mundial (1=Grupos → 4=Cuartos)
@@ -74,7 +74,7 @@ export default function S07_MexicoVsHistoria() {
                 type="monotone" />
             </LineChart>
           </ResponsiveContainer>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+          <div className="g-2" style={{ marginTop: 12 }}>
             {[["4.20", "ronda prom. como sede", MX_GOLD], ["2.75", "ronda prom. fuera 1994-2018", "#9ca3af"]].map(([v, l, c]) => (
               <div key={l} style={{ border: `1px solid ${c}40`, borderRadius: 3, padding: "8px 12px", textAlign: "center" }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: c }}>{v}</div>

@@ -39,7 +39,7 @@ export default function S13_RankingRivales() {
     <SectionWrapper id="s13" number={13}
       title="Ranking de Rivales Más Peligrosos"
       subtitle="La pregunta no es solo si México clasifica — es contra quién le toca después. En este torneo hay selecciones que México puede competir de tú a tú y otras que solo ganas si ellas tienen un día pésimo y tú uno de los mejores de tu historia. Aquí están ordenados los posibles rivales por lo que representan realmente, no solo por el número de su ranking.">
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
+      <div className="g-side">
         <div className="card">
           <div className="chart-label">
             P(México gana) · todos los posibles rivales eliminatorios

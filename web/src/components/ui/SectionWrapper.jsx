@@ -12,7 +12,7 @@ export default function SectionWrapper({ id, number, title, subtitle, image, ima
   );
 
   const foto = (
-    <div style={{ position: "relative", overflow: "hidden" }}>
+    <div className="img-col" style={{ position: "relative", overflow: "hidden" }}>
       <img
         src={image}
         alt={title}
@@ -26,7 +26,7 @@ export default function SectionWrapper({ id, number, title, subtitle, image, ima
     <section id={id} className="section" style={{ padding: image ? 0 : undefined }}>
 
       {image ? (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 340 }}>
+        <div className="img-section-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 340 }}>
           {imageLeft ? foto : texto}
           {imageLeft ? texto : foto}
         </div>

@@ -48,7 +48,7 @@ export default function S11_ProbabilidadPenales() {
       title="La Maldición de los Penales"
       subtitle="La única vez que México ganó en penales en un Mundial fue en 1986 ante Alemania Occidental — el partido más cercano a la gloria en toda su historia. Desde entonces, perdió con Bulgaria en 1994 en tanda de penales y contra Países Bajos en 2014 con un penal cobrado en el 94 que abrió la herida de otra manera. No son exactamente los penales el problema — es que el partido siempre termina en el peor momento posible.">
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+      <div className="g-3">
 
         {/* ── 1. HISTORIAL BARRAS HORIZONTALES ── */}
         <div className="card">

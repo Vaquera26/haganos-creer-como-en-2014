@@ -26,7 +26,7 @@ export default function S08_EfectoLocalia() {
       title="El Efecto de Localía"
       subtitle="El Azteca está a 2,240 metros sobre el nivel del mar y abre el torneo el 11 de junio — se convierte en el primer estadio de la historia en inaugurar tres Mundiales distintos. La ventaja es real, pero tiene fecha de vencimiento: de cuartos de final en adelante, todos los partidos se juegan en Estados Unidos. México tiene en casa los grupos y posiblemente la ronda de 32 y octavos. Es una ventaja enorme, pero solo si avanza lo suficiente para aprovecharse de ella."
       image={imgAzteca} imageLeft={true}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+      <div className="g-2" style={{ marginBottom: 12 }}>
         <div className="card">
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
             <Flag code="mx" className="w-7 h-5 rounded" alt="México" />
@@ -45,7 +45,7 @@ export default function S08_EfectoLocalia() {
               <Bar dataKey="fuera" name="De visita"  fill="#9ca3af"  radius={[3,3,0,0]} opacity={0.75} />
             </BarChart>
           </ResponsiveContainer>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
+          <div className="g-2" style={{ marginTop: 10 }}>
             {[["70.8%", "victorias en casa", MX_GREEN], ["49%", "victorias de visita", "#9ca3af"]].map(([v, l, c]) => (
               <div key={l} style={{ border: `1px solid ${c}40`, borderRadius: 3, padding: "6px 10px", textAlign: "center" }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: c }}>{v}</div>
@@ -74,7 +74,7 @@ export default function S08_EfectoLocalia() {
                 type="monotone" />
             </LineChart>
           </ResponsiveContainer>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
+          <div className="g-2" style={{ marginTop: 10 }}>
             {[["+5.6 pp", "Azteca (2,240m)", MX_GOLD], ["+3.2 pp", "Guadalajara (1,554m)", MX_GREEN]].map(([v, l, c]) => (
               <div key={l} style={{ border: `1px solid ${c}40`, borderRadius: 3, padding: "6px 10px", textAlign: "center" }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: c }}>{v}</div>

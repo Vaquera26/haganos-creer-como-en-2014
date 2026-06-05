@@ -342,6 +342,16 @@ h1, h2, h3 { margin: 0; }
 
 .surface { background: var(--bg-surface); }
 
+/* ── GRID UTILITIES ──────────────────────────────────────────────────────────── */
+
+.g-2    { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.g-3    { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.g-main { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
+.g-side { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+.g-r32  { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+
+.chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
 /* ── RESPONSIVE ──────────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
@@ -350,14 +360,29 @@ h1, h2, h3 { margin: 0; }
 }
 
 @media (max-width: 768px) {
-  .hero { padding: 36px 4vw 32px; }
-  .hero-title { font-size: 30px; }
-  .hero-stat + .hero-stat { border-left: none; border-top: 1px solid var(--border-mid); }
-  .section { padding: 40px 4vw 36px; }
+  .section { padding: 32px 4vw 28px; }
   .section-title { font-size: 20px; }
+
+  /* Todos los grids colapsan a 1 columna */
+  .g-2, .g-3, .g-main, .g-side, .g-r32 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Top bar — ocultar nav en móvil */
+  .top-bar-nav { display: none; }
+
+  /* Stickers — reducir tamaño */
+  .sticker-strip { flex-wrap: wrap; gap: 8px; padding: 10px 4vw; }
+
+  /* Sección con imagen — la imagen va arriba */
+  .img-section-grid { grid-template-columns: 1fr; min-height: auto; }
+  .img-section-grid .img-col { height: 220px; order: -1; }
+
+  /* Conclusión */
+  .conclusion-inner { padding: 0; }
 }
 
 @media (max-width: 480px) {
-  .hero-title { font-size: 24px; }
   .section-title { font-size: 18px; }
+  .g-3 { grid-template-columns: 1fr; }
 }

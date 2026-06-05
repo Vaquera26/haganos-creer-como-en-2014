@@ -19,7 +19,7 @@ export default function S01_RutaQuintoPartido() {
       title="La Ruta del Quinto Partido"
       subtitle="1994, 1998, 2002, 2006, 2010, 2014, 2018. Siete veces consecutivas al cuarto partido y no más. En 2022 ni eso. El quinto partido es el partido que ningún mexicano menor de cuarenta años ha visto en vivo en un Mundial. El modelo dice que en poco menos de la mitad de las simulaciones México llega ahí. El problema es que en la vida real solo se juega una vez."
       image={imgQuinto}>
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
+      <div className="g-side">
         <div className="card">
           <div className="chart-label">
             % que llega a cada ronda · 100,000 simulaciones

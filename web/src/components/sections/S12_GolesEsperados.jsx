@@ -18,7 +18,7 @@ export default function S12_GolesEsperados() {
     <SectionWrapper id="s12" number={12}
       title="Modelo de Goles Esperados (xG)"
       subtitle="El problema histórico de México no ha sido crear ocasiones — ha sido no convertirlas y regalárselas al rival en los peores momentos. En Brasil 2014 le creó oportunidades claras a Argentina y no las metió. En Rusia 2018 le marcó el gol del siglo a Alemania y luego se cayó completamente ante Brasil. Los xG no mienten sobre la calidad del juego, pero tampoco garantizan nada si el rematador falla.">
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+      <div className="g-3">
         {PARTIDOS.map((p) => (
           <div key={p.rival} className="card">
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
@@ -45,7 +45,7 @@ export default function S12_GolesEsperados() {
               </BarChart>
             </ResponsiveContainer>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 4, marginTop: 10 }}>
+            <div className="g-3" style={{ marginTop: 10 }}>
               {[["Gana", p.pG, MX_GREEN], ["Empata", p.pE, MX_GOLD], ["Pierde", p.pP, MX_RED]].map(([l, v, c]) => (
                 <div key={l} style={{ border: "1px solid var(--border-mid)", borderRadius: 3, padding: "5px 3px", textAlign: "center" }}>
                   <div style={{ fontSize: 14, fontWeight: 900, color: c }}>{v}%</div>

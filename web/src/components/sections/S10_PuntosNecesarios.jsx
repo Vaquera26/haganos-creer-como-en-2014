@@ -45,7 +45,7 @@ export default function S10_PuntosNecesarios() {
       title="Puntos Necesarios para Clasificar"
       subtitle="En Qatar 2022 México terminó con exactamente los mismos puntos que Polonia — y se fue a casa por diferencia de goles. Cuatro años antes, en Rusia, terminó invicto en grupos y eso no le evitó perder con Brasil en octavos. Los puntos no garantizan nada, pero no tenerlos garantiza todo lo malo. Con seis puntos México clasifica casi seguro. Con cuatro, empieza a rezar.">
 
-      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 12 }}>
+      <div className="g-main">
 
         {/* ── Izquierda: barras P(clasif) + línea P(obtener pts) ── */}
         <div className="card">
@@ -115,7 +115,7 @@ export default function S10_PuntosNecesarios() {
           </ResponsiveContainer>
 
           {/* Etiquetas de posición */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 12 }}>
+          <div className="g-2" style={{ marginTop: 12 }}>
             {POS_DATA.map((d) => (
               <div key={d.pos} style={{ border: "1px solid var(--border-mid)", borderRadius: 4, padding: "6px 10px" }}>
                 <div style={{ fontFamily: "var(--mono)", fontSize: 16, fontWeight: 900, color: d.color }}>{d.pct}%</div>

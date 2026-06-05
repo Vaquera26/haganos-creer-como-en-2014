@@ -45,7 +45,7 @@ export default function S04_EscenariosClasificacion() {
       title="Escenarios de Clasificación"
       subtitle="El escenario perfecto tiene un nombre: ganar los primeros dos y llegar al tercero sin presión. El peor escenario también tiene nombre: necesitar un resultado en el último partido mientras se ve la pantalla del estadio de al lado. México ya vivió eso en 2022 y fue un desastre. Lo que muestran estos números es cuánto margen hay y cuánto no.">
 
-      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
+      <div className="g-main">
 
         {/* ── HEATMAP ── */}
         <div className="card" style={{ padding: 0, overflow: "hidden" }}>
@@ -172,7 +172,7 @@ export default function S04_EscenariosClasificacion() {
           </ResponsiveContainer>
 
           {/* Summary stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+          <div className="g-2" style={{ marginTop: 12 }}>
             {[
               ["62.5%", "clasifica directo",      MX_GREEN],
               ["74.2%", "total incl. como 3ro",   "#2d6a4f"],

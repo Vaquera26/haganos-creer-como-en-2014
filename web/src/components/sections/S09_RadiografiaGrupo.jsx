@@ -35,7 +35,7 @@ export default function S09_RadiografiaGrupo() {
       title="Radiografía del Grupo A"
       subtitle="En Qatar 2022 le tocó Argentina, Polonia y Arabia Saudita. Antes, en Brasil 2014, Camerún, Croacia y Brasil. Ahora: Corea del Sur, Chequia y Sudáfrica. El 11 de junio México abre el torneo contra Sudáfrica en el Azteca — el primer partido del Mundial, en el estadio que por primera vez en la historia inaugura tres Copas del Mundo distintas. El grupo no es una sentencia de muerte. Pero el partido inaugural del torneo con toda la presión encima tampoco es un trámite."
       image={imgGrupo} imageLeft={true}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="g-2">
         <div className="card">
           <div className="chart-label">
             Perfil comparativo Grupo A (0-10)

@@ -70,7 +70,7 @@ export default function App() {
         background: "var(--bg)", borderBottom: "1px solid var(--border-mid)",
       }}>
         <img src={imgLogoClean} alt="FIFA World Cup 2026" style={{ height: 30, objectFit: "contain" }} />
-        <div style={{ display: "flex", gap: 20 }}>
+        <div className="top-bar-nav" style={{ display: "flex", gap: 20 }}>
           {[
             { id: "s09", label: "El Grupo" }, { id: "s03", label: "Partidos" },
             { id: "s08", label: "Localía" }, { id: "s07", label: "Historia" },
@@ -85,7 +85,7 @@ export default function App() {
         <Hero />
 
         {/* Sticker 1 — después del Hero */}
-        <div style={{
+        <div className="sticker-strip" style={{
           display: "flex", alignItems: "flex-end", gap: 14,
           padding: "14px 5vw", background: "var(--bg-surface)",
           borderBottom: "1px solid var(--border)",
@@ -112,7 +112,7 @@ export default function App() {
         <S04 />
 
         {/* Sticker 2 — antes de Localía e Historia */}
-        <div style={{
+        <div className="sticker-strip" style={{
           display: "flex", alignItems: "flex-end",
           gap: 12, padding: "10px 5vw",
           background: "var(--bg)", borderBottom: "1px solid var(--border)",
@@ -139,7 +139,7 @@ export default function App() {
         <S11 />
 
         {/* Sticker 3 — antes del quinto partido */}
-        <div style={{
+        <div className="sticker-strip" style={{
           display: "flex", alignItems: "flex-end", gap: 14,
           padding: "10px 5vw", background: "var(--bg-surface)",
           borderBottom: "1px solid var(--border)",

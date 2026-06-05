@@ -18,7 +18,7 @@ export default function S05_IndiceRiesgo() {
     <SectionWrapper id="s05" number={5}
       title="Índice de Riesgo de México"
       subtitle="Después de Qatar 2022 nadie podía argumentar que el problema era mala suerte. México fue eliminado en grupos por primera vez en 44 años. Eso sacudió todo. Lo que vino después — Nations League, Gold Cup, amistosos ante Portugal y Bélgica — fue el mejor ciclo en años. Pero el riesgo real no está en el papel: está en si ese México que ganó en casa aparece cuando de verdad importa.">
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="g-2">
         <div className="card">
           <div className="chart-label">
             Radar de riesgo · 10 = máximo riesgo
@@ -53,7 +53,7 @@ export default function S05_IndiceRiesgo() {
               <Bar dataKey="v2026"  name="México 2026" fill={MX_GREEN} radius={[0,3,3,0]} opacity={0.9} />
             </BarChart>
           </ResponsiveContainer>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+          <div className="g-2" style={{ marginTop: 12 }}>
             <div style={{ border: `1px solid ${MX_GREEN}30`, borderRadius: 3, padding: "8px 12px" }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: MX_GREEN }}>{prom26}</div>
               <div style={{ fontSize: 10, color: "#888" }}>Riesgo 2026 / 10</div>
