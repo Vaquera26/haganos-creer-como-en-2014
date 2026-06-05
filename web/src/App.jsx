@@ -94,7 +94,7 @@ export default function App() {
           <Sticker src={imgWeAre26} alt="We Are 26" size={64} rotate={3} />
           <Panini src={imgCuah} alt="Cuauhtémoc Blanco" rotate={-3} />
           <div style={{ flex: 1 }} />
-          <span style={{
+          <span className="sticker-date" style={{
             fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
             letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-muted)",
             alignSelf: "center",

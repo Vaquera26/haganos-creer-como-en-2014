@@ -338,7 +338,7 @@ export default function S15_MexicoCampeonBracket() {
               border: "1px solid var(--border-mid)", borderTop: "none",
               background: "var(--bg)", padding: 16,
             }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="g-2">
 
                 {/* Partidos */}
                 <div className="card" style={{ padding: 16 }}>

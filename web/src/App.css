@@ -374,9 +374,18 @@ h1, h2, h3 { margin: 0; }
   /* Stickers — reducir tamaño */
   .sticker-strip { flex-wrap: wrap; gap: 8px; padding: 10px 4vw; }
 
-  /* Sección con imagen — la imagen va arriba */
-  .img-section-grid { grid-template-columns: 1fr; min-height: auto; }
-  .img-section-grid .img-col { height: 220px; order: -1; }
+  /* Sección con imagen — la imagen va arriba con altura fija */
+  .img-section-grid { grid-template-columns: 1fr !important; min-height: auto; }
+  .img-col { height: 260px !important; order: -1; }
+  .img-col img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Ocultar texto de fecha en sticker strip */
+  .sticker-date { display: none; }
+
+  /* Grids exteriores colapsan, mini-stats internos quedan en 3 */
+  .g-2, .g-main, .g-side, .g-r32 { grid-template-columns: 1fr !important; }
+  .g-3 { grid-template-columns: 1fr !important; }
+  .g-3-keep { grid-template-columns: repeat(3, 1fr) !important; }
 
   /* Conclusión */
   .conclusion-inner { padding: 0; }

@@ -42,7 +42,7 @@ export default function S03_ProbabilidadPartido() {
         </ResponsiveContainer>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginTop: 12 }}>
+      <div className="g-3" style={{ marginTop: 12 }}>
         {PARTIDOS.map((p) => (
           <div key={p.rival} className="card">
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
@@ -54,7 +54,7 @@ export default function S03_ProbabilidadPartido() {
                 <div style={{ fontSize: 10, color: "#888" }}>{p.fecha} · FIFA #{p.rank}</div>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginBottom: 12 }}>
+            <div className="g-3-keep" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:6, marginBottom: 12 }}>
               {[["Gana", p.gana, MX_GREEN], ["Empata", p.empata, MX_GOLD], ["Pierde", p.pierde, MX_RED]].map(([label, val, col]) => (
                 <div key={label} style={{ border: "1px solid var(--border-mid)", borderRadius: 4, padding: "6px 4px", textAlign: "center" }}>
                   <div style={{ fontSize: 16, fontWeight: 900, color: col }}>{val}%</div>
