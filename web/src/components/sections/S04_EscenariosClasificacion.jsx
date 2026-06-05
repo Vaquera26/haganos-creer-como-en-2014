@@ -1,126 +1,192 @@
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 import SectionWrapper from "../ui/SectionWrapper.jsx";
-import { MX_GREEN, MX_RED, MX_GOLD, MX_BLUE, AXIS_CLR, GRID_CLR, LABEL_CLR, TOOLTIP_STYLE } from "../../theme.js";
+import { MX_GREEN, MX_RED, AXIS_CLR, GRID_CLR, TOOLTIP_STYLE } from "../../theme.js";
 
-// Datos exactos del output Python
-const PUNTOS_DATA = [
-  { pts: "0", pObtener: 2.5,  pClasif: 0,    posPromedio: 4.00 },
-  { pts: "1", pObtener: 7.0,  pClasif: 0,    posPromedio: 3.92 },
-  { pts: "2", pObtener: 6.5,  pClasif: 1.5,  posPromedio: 3.49 },
-  { pts: "3", pObtener: 13.3, pClasif: 6.8,  posPromedio: 3.22 },
-  { pts: "4", pObtener: 20.6, pClasif: 57.3, posPromedio: 2.41 },
-  { pts: "5", pObtener: 9.6,  pClasif: 98.9, posPromedio: 1.57 },
-  { pts: "6", pObtener: 16.8, pClasif: 97.6, posPromedio: 1.55 },
-  { pts: "7", pObtener: 15.5, pClasif: 100,  posPromedio: 1.06 },
-  { pts: "9", pObtener: 8.3,  pClasif: 100,  posPromedio: 1.00 },
+// ── Datos ──────────────────────────────────────────────────────────────────────
+// Filas = J1 vs Sudáfrica · Columnas = J2 vs Corea del Sur
+const HEATMAP = [
+  { j1: "J1: Gana",   cells: [{ p: 99, label: "G·G" }, { p: 81, label: "G·E" }, { p: 56, label: "G·P" }] },
+  { j1: "J1: Empata", cells: [{ p: 81, label: "E·G" }, { p: 28, label: "E·E" }, { p:  8, label: "E·P" }] },
+  { j1: "J1: Pierde", cells: [{ p: 56, label: "P·G" }, { p:  8, label: "P·E" }, { p:  2, label: "P·P" }] },
+];
+const COL_LABELS = [
+  { title: "J2: Gana",   sub: "vs Corea del Sur" },
+  { title: "J2: Empata", sub: "vs Corea del Sur" },
+  { title: "J2: Pierde", sub: "vs Corea del Sur" },
 ];
 
-// Escenarios J1 × J2
-const ESCENARIOS = [
-  { j1: "G", j2: "G", pClasif: 99 }, { j1: "G", j2: "E", pClasif: 81 }, { j1: "G", j2: "P", pClasif: 56 },
-  { j1: "E", j2: "G", pClasif: 81 }, { j1: "E", j2: "E", pClasif: 28 }, { j1: "E", j2: "P", pClasif: 8  },
-  { j1: "P", j2: "G", pClasif: 56 }, { j1: "P", j2: "E", pClasif: 8  }, { j1: "P", j2: "P", pClasif: 2  },
+// Distribución de puntos
+const PTS_DATA = [
+  { pts: "0", pOb: 2.5,  pCl: 0    }, { pts: "1", pOb: 7.0,  pCl: 0    },
+  { pts: "2", pOb: 6.5,  pCl: 1.5  }, { pts: "3", pOb: 13.3, pCl: 6.8  },
+  { pts: "4", pOb: 20.6, pCl: 57.3 }, { pts: "5", pOb: 9.6,  pCl: 98.9 },
+  { pts: "6", pOb: 16.8, pCl: 97.6 }, { pts: "7", pOb: 15.5, pCl: 100  },
+  { pts: "9", pOb: 8.3,  pCl: 100  },
 ];
+const barFill = (pCl) => pCl >= 90 ? MX_GREEN : pCl >= 40 ? "#2d6a4f" : MX_RED;
 
-const colorPts = (p) => {
-  if (p >= 80) return MX_GREEN;
-  if (p >= 40) return MX_GOLD;
-  return MX_RED;
-};
-
-const RJ = { G: { bg: "bg-mx-green", txt: "text-white" }, E: { bg: "bg-mx-gold", txt: "text-black" }, P: { bg: "bg-mx-red", txt: "text-white" } };
+// ── Color: blanco → verde México según P(clasificar) ──────────────────────────
+// p=0% → blanco, p=100% → #166534
+function cellColor(p) {
+  const t = Math.max(0, Math.min(1, p / 100));
+  const r = Math.round(255 + (22  - 255) * t);
+  const g = Math.round(255 + (101 - 255) * t);
+  const b = Math.round(255 + (52  - 255) * t);
+  return {
+    bg:   `rgb(${r},${g},${b})`,
+    text: t > 0.45 ? "#fff" : "#166534",
+    sub:  t > 0.45 ? "rgba(255,255,255,0.7)" : "rgba(22,101,52,0.55)",
+  };
+}
 
 export default function S04_EscenariosClasificacion() {
   return (
-    <SectionWrapper
-      id="s04" number={4} accent="green"
+    <SectionWrapper id="s04" number={4}
       title="Escenarios de Clasificación"
-      subtitle="Distribución de puntos (100k sims) y P(clasificar) por puntuación. Con 4 pts hay 57% de chance directo."
-      quote="Con 6 puntos clasificamos sin ver el marcador de los otros. Con 3 puntos, necesitamos mirar la pantalla del estadio."
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ComposedChart: barras pObtener + línea pClasif */}
-        <div className="bg-mx-card border border-mx-border rounded-2xl p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-4">
-            Distribución de puntos y P(clasificar directo)
-          </p>
-          <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={PUNTOS_DATA} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
-              <CartesianGrid stroke={GRID_CLR} vertical={false} />
-              <XAxis dataKey="pts" label={{ value: "Puntos", position: "insideBottom", offset: -4, fill: AXIS_CLR, fontSize: 11 }}
-                tick={{ fill: LABEL_CLR, fontSize: 12, fontWeight: 600 }} axisLine={false} tickLine={false} />
-              <YAxis yAxisId="left" tick={{ fill: AXIS_CLR, fontSize: 11 }} axisLine={false} tickLine={false} unit="%" domain={[0, 110]} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fill: MX_GREEN, fontSize: 11 }} axisLine={false} tickLine={false} unit="%" />
-              <Tooltip {...TOOLTIP_STYLE} formatter={(v, n) => [`${v}%`, n]} />
-              <Legend wrapperStyle={{ color: LABEL_CLR, fontSize: 11 }} />
-              <Bar yAxisId="left" dataKey="pObtener" name="P(obtener X pts)" radius={[4, 4, 0, 0]} fill={MX_BLUE} opacity={0.7} />
-              <Line yAxisId="right" dataKey="pClasif" name="P(clasificar)" stroke={MX_GREEN} strokeWidth={2.5}
-                dot={{ r: 4, fill: MX_GREEN }} type="monotone" />
-            </ComposedChart>
-          </ResponsiveContainer>
-          <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-            <div className="bg-mx-green/10 border border-mx-green/30 rounded-lg py-2">
-              <p className="text-xl font-black text-mx-green">62.5%</p>
-              <p className="text-xs text-gray-500">clasifica directo</p>
-            </div>
-            <div className="bg-mx-gold/10 border border-mx-gold/30 rounded-lg py-2">
-              <p className="text-xl font-black text-mx-gold">74.2%</p>
-              <p className="text-xs text-gray-500">total (incl. 3ro)</p>
-            </div>
-            <div className="bg-zinc-800 rounded-lg py-2">
-              <p className="text-xl font-black text-gray-300">20.6%</p>
-              <p className="text-xs text-gray-500">termina con 4pts</p>
-            </div>
-          </div>
-        </div>
+      subtitle="El escenario perfecto tiene un nombre: ganar los primeros dos y llegar al tercero sin presión. El peor escenario también tiene nombre: necesitar un resultado en el último partido mientras se ve la pantalla del estadio de al lado. México ya vivió eso en 2022 y fue un desastre. Lo que muestran estos números es cuánto margen hay y cuánto no.">
 
-        {/* matriz J1 × J2 */}
-        <div className="bg-mx-card border border-mx-border rounded-2xl p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-2">
-            P(clasificar) según resultado de los primeros 2 partidos
-          </p>
-          <div className="flex gap-2 mb-3 text-xs text-gray-600">
-            <span>J1 = vs Sudáfrica · J2 = vs Corea</span>
-          </div>
+      <div style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
 
-          {/* encabezados J2 */}
-          <div className="grid grid-cols-4 gap-1 mb-1">
-            <div />
-            {["G", "E", "P"].map((r) => (
-              <div key={r} className={`text-center text-xs font-black py-1 rounded ${RJ[r].bg} ${RJ[r].txt}`}>{r}</div>
+        {/* ── HEATMAP ── */}
+        <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+
+          {/* Column headers */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "90px 1fr 1fr 1fr",
+            borderBottom: "2px solid var(--text)",
+            background: "var(--bg-surface)",
+          }}>
+            <div style={{ padding: "10px 8px" }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
+                P(CLASIFICAR)
+              </div>
+            </div>
+            {COL_LABELS.map((col, i) => (
+              <div key={i} style={{
+                padding: "12px 8px", textAlign: "center",
+                borderLeft: "1px solid var(--border-mid)",
+              }}>
+                <div style={{ fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "var(--text)" }}>
+                  {col.title}
+                </div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text-muted)", marginTop: 2 }}>
+                  {col.sub}
+                </div>
+              </div>
             ))}
           </div>
 
-          {/* filas J1 */}
-          {["G", "E", "P"].map((r1) => (
-            <div key={r1} className="grid grid-cols-4 gap-1 mb-1">
-              <div className={`text-center text-xs font-black py-2 rounded ${RJ[r1].bg} ${RJ[r1].txt}`}>{r1}</div>
-              {["G", "E", "P"].map((r2) => {
-                const esc = ESCENARIOS.find((e) => e.j1 === r1 && e.j2 === r2);
-                const p = esc?.pClasif ?? 0;
-                const alpha = p / 100;
-                const color = p >= 80 ? MX_GREEN : p >= 40 ? MX_GOLD : MX_RED;
+          {/* Rows */}
+          {HEATMAP.map((row, ri) => (
+            <div key={ri} style={{ display: "grid", gridTemplateColumns: "90px 1fr 1fr 1fr" }}>
+              {/* Row label */}
+              <div style={{
+                display: "flex", flexDirection: "column", justifyContent: "center",
+                padding: "8px 12px",
+                fontFamily: "var(--sans)", fontSize: 12, fontWeight: 700, color: "var(--text-muted)",
+                borderBottom: ri < 2 ? "1px solid var(--border)" : "none",
+                borderRight: "2px solid var(--text)",
+                lineHeight: 1.3,
+              }}>
+                {row.j1.split(": ").map((part, i) => (
+                  <span key={i} style={{ fontSize: i === 0 ? 9 : 12, color: i === 0 ? "var(--text-muted)" : "var(--text)", fontWeight: i === 0 ? 400 : 700 }}>
+                    {i === 0 ? part + ":" : part}
+                  </span>
+                ))}
+              </div>
+
+              {/* Cells */}
+              {row.cells.map((cell, ci) => {
+                const clr = cellColor(cell.p);
                 return (
-                  <div key={r2} className="rounded-lg flex flex-col items-center justify-center py-3"
-                    style={{ backgroundColor: `${color}${Math.round(alpha * 200).toString(16).padStart(2, "0")}` }}>
-                    <span className="text-lg font-black text-white">{p}%</span>
-                    <span className="text-xs text-white/60">{r1}-{r2}</span>
+                  <div key={ci} style={{
+                    background: clr.bg,
+                    borderBottom: ri < 2 ? "1px solid rgba(22,101,52,0.12)" : "none",
+                    borderLeft:  "1px solid rgba(22,101,52,0.12)",
+                    padding: "16px 10px",
+                    textAlign: "center",
+                    minHeight: 76,
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center", gap: 5,
+                  }}>
+                    <span style={{
+                      fontFamily: "var(--mono)", fontSize: 26, fontWeight: 900,
+                      color: clr.text, letterSpacing: "-0.02em", lineHeight: 1,
+                    }}>
+                      {cell.p}%
+                    </span>
+                    <span style={{
+                      fontFamily: "var(--mono)", fontSize: 9,
+                      color: clr.sub, letterSpacing: "0.04em",
+                    }}>
+                      {cell.label}
+                    </span>
                   </div>
                 );
               })}
             </div>
           ))}
 
-          <p className="text-xs text-gray-600 mt-3">G=gana · E=empata · P=pierde</p>
-        </div>
-      </div>
+          {/* Color legend bar */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "10px 14px", borderTop: "1px solid var(--border)",
+            background: "var(--bg-surface)",
+          }}>
+            <div style={{
+              flex: 1, height: 8, borderRadius: 4,
+              background: `linear-gradient(to right, ${cellColor(0).bg}, ${cellColor(50).bg}, ${cellColor(100).bg})`,
+            }} />
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+              riesgo → seguro
+            </span>
+          </div>
 
-      <div className="mt-6 p-5 bg-mx-green/5 border border-mx-green/20 rounded-xl">
-        <p className="text-sm text-gray-300 leading-relaxed">
-          <span className="text-mx-green font-bold">La esperanza:</span> El escenario más probable es terminar con 4 puntos (20.6% de las sims).
-          Con 4 puntos hay 57% de clasificar directo. No es seguro, pero es el escenario más realista.
-          La respuesta: ganar los dos primeros partidos y al tercero entrar a festejar.
-        </p>
+          {/* Key note */}
+          <div style={{ padding: "8px 14px", background: "var(--bg-surface)" }}>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text-muted)" }}>
+              G=gana · E=empata · P=pierde · J1=vs Sudáfrica · J2=vs Corea del Sur
+            </span>
+          </div>
+        </div>
+
+        {/* ── BAR CHART ── */}
+        <div className="card">
+          <div className="chart-label">Distribución de puntos y P(clasificar directo)</div>
+          <ResponsiveContainer width="100%" height={250}>
+            <ComposedChart data={PTS_DATA} margin={{ top: 8, right: 45, left: -10, bottom: 12 }}>
+              <CartesianGrid stroke={GRID_CLR} vertical={false} strokeDasharray="3 3" />
+              <XAxis dataKey="pts" tick={{ fill: "#444", fontSize: 11, fontWeight: 700 }}
+                axisLine={false} tickLine={false}
+                label={{ value: "Puntos", position: "insideBottom", offset: -6, fill: AXIS_CLR, fontSize: 10 }} />
+              <YAxis yAxisId="l" tick={{ fill: AXIS_CLR, fontSize: 10 }} unit="%" axisLine={false} tickLine={false} />
+              <YAxis yAxisId="r" orientation="right" tick={{ fill: MX_GREEN, fontSize: 9 }} unit="%" axisLine={false} tickLine={false} />
+              <Tooltip {...TOOLTIP_STYLE} formatter={(v, n) => [`${v}%`, n]} />
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+              <Bar yAxisId="l" dataKey="pOb" name="P(obtener pts)" radius={[3,3,0,0]} maxBarSize={44}>
+                {PTS_DATA.map((d, i) => <Cell key={i} fill={barFill(d.pCl)} opacity={0.8} />)}
+              </Bar>
+              <Line yAxisId="r" dataKey="pCl" name="P(clasificar)" stroke={MX_GREEN} strokeWidth={2.5}
+                dot={{ r: 4, fill: MX_GREEN, stroke: "#fff", strokeWidth: 2 }} type="monotone" />
+            </ComposedChart>
+          </ResponsiveContainer>
+
+          {/* Summary stats */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+            {[
+              ["62.5%", "clasifica directo",      MX_GREEN],
+              ["74.2%", "total incl. como 3ro",   "#2d6a4f"],
+              ["20.6%", "prob. de 4 pts (típico)", "#374151"],
+              ["57.3%", "clasificar con 4 pts",    "#2d6a4f"],
+            ].map(([v, l, c]) => (
+              <div key={l} style={{ border: "1px solid var(--border-mid)", borderRadius: 6, padding: "8px 10px" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 18, fontWeight: 900, color: c }}>{v}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text-muted)", marginTop: 2 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </SectionWrapper>
   );

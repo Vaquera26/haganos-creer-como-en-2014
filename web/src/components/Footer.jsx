@@ -1,35 +1,24 @@
-import Flag from "./ui/Flag.jsx";
-
 export default function Footer() {
   return (
-    <footer className="border-t border-mx-border mt-20 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <Flag code="mx" className="w-8 h-6 rounded shadow" alt="México" />
-            <div>
-              <p className="text-sm font-black text-white">Haganos Creer Como en 2014</p>
-              <p className="text-xs text-gray-600">México · FIFA World Cup 2026</p>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <p className="text-xs text-gray-600 leading-relaxed max-w-sm">
-              Análisis generado con simulaciones Monte Carlo (100,000 iteraciones),
-              modelo Elo-Poisson y datos FIFA abril 2026.
-            </p>
-            <p className="text-xs text-gray-700 mt-1">
-              Los números son modelos, no profecías. El fútbol los rompe todos.
-            </p>
-          </div>
-
-          <div className="text-right">
-            <p className="text-2xl font-black text-gradient-mx">1.4%</p>
-            <p className="text-xs text-gray-600">probabilidad de ser campeón</p>
-            <p className="text-xs text-mx-green font-semibold mt-1">Pero el Azteca no sabe de porcentajes.</p>
-          </div>
-        </div>
-      </div>
+    <footer className="footer">
+      <span>Modelo Elo-Poisson · Rankings FIFA abril 2026</span>
+      <span>100,000 simulaciones Monte Carlo</span>
+      <span>México · World Cup 2026</span>
+      <span style={{ borderLeft: "1px solid var(--border-mid)", paddingLeft: 24 }}>
+        <a
+          href="https://github.com/vaquera26"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "var(--text-muted)", textDecoration: "none", display: "flex", alignItems: "center", gap: 5 }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-muted)"; }}
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          vaquera26
+        </a>
+      </span>
     </footer>
   );
 }

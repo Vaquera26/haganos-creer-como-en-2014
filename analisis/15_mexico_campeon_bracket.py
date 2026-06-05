@@ -60,7 +60,8 @@ def simular_grupo(grupo_label, equipos_ranks):
 
 def partido_eliminatorio(eq_a, eq_b, ranks, ronda):
     if eq_a == "?" or eq_b == "?":
-        return eq_a if eq_b == "?" else eq_b, (0, 0)
+        ganador = eq_a if eq_b == "?" else eq_b
+        return ganador, (0, 0), False
 
     rank_a = ranks.get(eq_a, 50)
     rank_b = ranks.get(eq_b, 50)
@@ -70,9 +71,15 @@ def partido_eliminatorio(eq_a, eq_b, ranks, ronda):
     pw, pe, pl = prob_resultado(rank_a, rank_b, ventaja_local=local, altitud_bonus=alt)
     r = np.random.rand()
 
-    xg_a = 1.2 * (rank_b / rank_a) ** 0.5
-    xg_b = 1.2 * (rank_a / rank_b) ** 0.5
+    # xG usando ratio Elo (evita valores extremos con rankings muy dispares)
+    from utils import elo_desde_ranking
+    elo_a = elo_desde_ranking(rank_a) + (60 + alt if local else 0)
+    elo_b = elo_desde_ranking(rank_b)
+    ratio = elo_a / elo_b
     from scipy.stats import poisson
+    xg_a = 1.2 * (ratio ** 0.65)
+    xg_b = 1.2 * ((1.0 / ratio) ** 0.65)
+
     ga = int(poisson.rvs(max(0.3, xg_a)))
     gb = int(poisson.rvs(max(0.3, xg_b)))
 
@@ -80,13 +87,14 @@ def partido_eliminatorio(eq_a, eq_b, ranks, ronda):
         if ga <= gb: ga = gb + 1
         return eq_a, (ga, gb), False
     elif r < pw + pe:
-        # empate + penales; México 0/2 mundiales, 1/3 CONCACAF → 30%
-        while ga != gb: gb = int(poisson.rvs(max(0.3, xg_b)))
+        # Empate → penales: score de empate basado en xG promedio
+        empate = int(poisson.rvs(max(0.3, (xg_a + xg_b) / 2)))
+        ga = gb = empate
         if "México" in (eq_a, eq_b):
             ganador = "México" if np.random.rand() < 0.30 else (eq_b if eq_a == "México" else eq_a)
         else:
             ganador = eq_a if np.random.rand() < 0.50 else eq_b
-        return ganador, (ga, gb), True   # True = fueron penales
+        return ganador, (ga, gb), True
     else:
         if gb <= ga: gb = ga + 1
         return eq_b, (ga, gb), False

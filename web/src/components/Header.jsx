@@ -1,66 +1,77 @@
-import { useState, useEffect } from "react";
-import Flag from "./ui/Flag.jsx";
-
-const NAV = [
-  { id: "s01", label: "Ruta" },
-  { id: "s02", label: "Dificultad" },
-  { id: "s03", label: "Partidos" },
+const SECTIONS = [
+  { id: "s09", label: "El Grupo" },
+  { id: "s03", label: "Los Partidos" },
+  { id: "s10", label: "Los Puntos" },
   { id: "s04", label: "Escenarios" },
-  { id: "s05", label: "Riesgo" },
-  { id: "s06", label: "Caminos" },
-  { id: "s07", label: "Historia" },
   { id: "s08", label: "Localía" },
-  { id: "s09", label: "Grupo A" },
-  { id: "s10", label: "Puntos" },
-  { id: "s11", label: "Penales" },
+  { id: "s07", label: "Historia" },
+  { id: "s02", label: "El Camino" },
+  { id: "s06", label: "Los Rivales" },
+  { id: "s13", label: "Ranking" },
   { id: "s12", label: "xG" },
-  { id: "s13", label: "Rivales" },
+  { id: "s05", label: "Riesgo" },
+  { id: "s11", label: "Penales" },
+  { id: "s01", label: "El Quinto" },
+  { id: "s15", label: "El Sueño" },
 ];
 
 export default function Header() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
-
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
-      ${scrolled ? "bg-mx-dark/95 backdrop-blur-md border-b border-mx-border shadow-lg shadow-black/40" : "bg-transparent"}`}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <div className="flex items-center justify-between h-14">
-          {/* logo */}
-          <a href="#" className="flex items-center gap-2.5 group">
-            <Flag code="mx" className="w-8 h-6 rounded shadow" alt="México" />
-            <span className="text-sm font-black tracking-tight text-white group-hover:text-mx-green transition-colors">
-              MX<span className="text-mx-green">2026</span>
-            </span>
-          </a>
-
-          {/* nav */}
-          <nav className="hidden lg:flex items-center gap-1 overflow-x-auto">
-            {NAV.map((n) => (
-              <a
-                key={n.id}
-                href={`#${n.id}`}
-                className="px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-mx-green
-                  rounded-md hover:bg-mx-green/5 transition-colors whitespace-nowrap"
-              >
-                {n.label}
-              </a>
-            ))}
-          </nav>
-
-          {/* badge */}
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-1.5 border border-mx-green/30 rounded-full px-3 py-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-mx-green animate-pulse" />
-              <span className="text-xs font-semibold text-mx-green">FIFA Rank #15</span>
-            </div>
-          </div>
+    <header style={{
+      borderBottom: "2px solid var(--text)",
+      background: "var(--bg)",
+      position: "sticky",
+      top: 0,
+      zIndex: 50,
+      padding: "16px 5vw 0",
+    }}>
+      {/* fila superior */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 14 }}>
+        <div>
+          <p style={{
+            fontFamily: "var(--mono)", fontSize: 8, fontWeight: 700,
+            letterSpacing: "0.25em", textTransform: "uppercase",
+            color: "var(--silver)", marginBottom: 4,
+          }}>
+            México · FIFA World Cup 2026 · Análisis Estadístico
+          </p>
+          <h1 style={{
+            fontFamily: "var(--sans)", fontSize: 20, fontWeight: 900,
+            letterSpacing: "-0.02em", textTransform: "uppercase",
+            color: "var(--text)", lineHeight: 1,
+          }}>
+            Háganos Creer{" "}
+            <em style={{ color: "var(--on-color)", fontStyle: "italic" }}>Como en 2014</em>
+          </h1>
         </div>
+
+        {/* métricas rápidas */}
+        <div style={{ display: "flex", gap: 0, border: "1px solid var(--border-mid)", borderRadius: 8, overflow: "hidden", background: "var(--bg)" }}>
+          {[
+            { label: "FIFA Rank",  value: "#15",   color: "var(--on-color)" },
+            { label: "P(Clasif.)", value: "92%",   color: "var(--on-color)" },
+            { label: "P(R16)",     value: "43.4%", color: "var(--med-color)" },
+            { label: "P(Campeón)", value: "1.4%",  color: "var(--red-color)" },
+          ].map((s, i) => (
+            <div key={s.label} style={{
+              padding: "8px 16px", textAlign: "center",
+              borderLeft: i > 0 ? "1px solid var(--border)" : "none",
+            }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 16, fontWeight: 900, color: s.color, letterSpacing: "-0.02em" }}>{s.value}</div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 8, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginTop: 1 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* nav */}
+      <div style={{
+        display: "flex", gap: 20, borderTop: "1px solid var(--border-mid)",
+        paddingTop: 8, paddingBottom: 12, overflowX: "auto", flexWrap: "nowrap",
+      }}>
+        {SECTIONS.map((s) => (
+          <a key={s.id} href={`#${s.id}`} className="nav-link">{s.label}</a>
+        ))}
       </div>
     </header>
   );

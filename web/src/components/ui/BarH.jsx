@@ -1,28 +1,24 @@
+const COLOR_MAP = {
+  green:  "#166534",
+  red:    "#991b1b",
+  gold:   "#2d6a4f",
+  blue:   "#6b7280",
+  gray:   "#6b7280",
+};
+
 export default function BarH({ label, value, max = 100, color = "green", suffix = "%", sublabel, bold }) {
   const pct = Math.round((value / max) * 100);
-  const colors = {
-    green:  "bg-mx-green",
-    red:    "bg-mx-red",
-    gold:   "bg-mx-gold",
-    gray:   "bg-zinc-500",
-    blue:   "bg-blue-600",
-  };
-  const barColor = colors[color] ?? "bg-mx-green";
+  const hex = COLOR_MAP[color] ?? COLOR_MAP.green;
 
   return (
-    <div className="group">
-      <div className="flex items-center justify-between mb-1">
-        <span className={`text-sm ${bold ? "font-bold text-white" : "text-gray-300"}`}>{label}</span>
-        <span className={`text-sm font-bold ${color === "green" ? "text-mx-green" : color === "gold" ? "text-mx-gold" : color === "red" ? "text-mx-red" : "text-gray-400"}`}>
-          {value}{suffix}
-        </span>
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+        <span style={{ fontSize: 12, color: bold ? "#111" : "#555", fontWeight: bold ? 700 : 400 }}>{label}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: hex }}>{value}{suffix}</span>
       </div>
-      {sublabel && <p className="text-xs text-gray-500 mb-1">{sublabel}</p>}
-      <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full transition-all duration-1000 ${barColor}`}
-          style={{ width: `${pct}%` }}
-        />
+      {sublabel && <p style={{ fontSize: 10, color: "#888", marginBottom: 3 }}>{sublabel}</p>}
+      <div style={{ height: 6, background: "#ebebeb", borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: hex, borderRadius: 3, transition: "width 0.8s ease" }} />
       </div>
     </div>
   );

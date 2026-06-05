@@ -1,105 +1,176 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ResponsiveContainer, ReferenceLine } from "recharts";
+import {
+  BarChart, Bar, LineChart, Line, XAxis, YAxis,
+  CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceDot,
+} from "recharts";
 import SectionWrapper from "../ui/SectionWrapper.jsx";
 import Flag from "../ui/Flag.jsx";
-import { MX_GREEN, MX_RED, MX_GOLD, MX_BLUE, AXIS_CLR, GRID_CLR, LABEL_CLR, TOOLTIP_STYLE } from "../../theme.js";
+import { MX_GREEN, MX_MED, MX_RED, AXIS_CLR, GRID_CLR, TOOLTIP_STYLE } from "../../theme.js";
 
-// Datos exactos output Python script 11
-const PENALES_RONDA = [
-  { ronda: "R32",   pET: 30.8, pPen: 19.1, pMxGana: 2.5  },
-  { ronda: "R16",   pET: 29.4, pPen: 18.3, pMxGana: 2.4  },
-  { ronda: "QF",    pET: 27.5, pPen: 17.0, pMxGana: 2.3  },
-  { ronda: "SF",    pET: 25.1, pPen: 15.6, pMxGana: 2.1  },
-  { ronda: "Final", pET: 24.0, pPen: 14.9, pMxGana: 2.0  },
+// ── Datos exactos del script Python ──────────────────────────────────────────
+const RONDAS = [
+  { r: "R32",   pET: 30.8, pPen: 19.1 },
+  { r: "R16",   pET: 29.4, pPen: 18.3 },
+  { r: "QF",    pET: 27.5, pPen: 17.0 },
+  { r: "SF",    pET: 25.1, pPen: 15.6 },
+  { r: "Final", pET: 24.0, pPen: 14.9 },
 ];
 
-const HISTORIAL = [
-  { rival: "Alemania Occ.", flagCode: "de", año: 1986, ronda: "Cuartos", marcador: "1-1", penales: "3-4", ganó: false },
-  { rival: "Bulgaria",      flagCode: "bg", año: 1994, ronda: "Octavos", marcador: "1-1", penales: "1-3", ganó: false },
+// Historial (Mundiales primero, luego CONCACAF)
+const HIST = [
+  { label: "Nations L 2021 vs EUA", result: "P", tipo: "CONCACAF" },
+  { label: "Copa Oro 2021 vs Canadá", result: "P", tipo: "CONCACAF" },
+  { label: "Copa Oro 2019 vs EUA",   result: "G", tipo: "CONCACAF" },
+  { label: "1994 vs Bulgaria (1-3)", result: "P", tipo: "Mundial"  },
+  { label: "1986 vs Alemania (3-4)", result: "P", tipo: "Mundial"  },
+];
+
+// Curva P(ET) = max(8, 33 * exp(-d/350))  |  P(pen) = P(ET)*0.62
+// Precalculada de 0 a 580 en 30 pasos
+const CURVE = Array.from({ length: 20 }, (_, i) => {
+  const diff = i * 30;
+  const pET  = Math.max(8, 33 * Math.exp(-diff / 350));
+  const pPen = pET * 0.62;
+  return { diff, pET: +pET.toFixed(1), pPen: +pPen.toFixed(1) };
+});
+
+// Marcadores de cada ronda en la curva (Elo diff estimado)
+const MARKERS = [
+  { ronda: "R32",   diff:  88, pET: 30.8, pPen: 19.1 },
+  { ronda: "R16",   diff: 118, pET: 29.4, pPen: 18.3 },
+  { ronda: "QF",    diff: 160, pET: 27.5, pPen: 17.0 },
+  { ronda: "SF",    diff: 218, pET: 25.1, pPen: 15.6 },
+  { ronda: "Final", diff: 262, pET: 24.0, pPen: 14.9 },
 ];
 
 export default function S11_ProbabilidadPenales() {
   return (
-    <SectionWrapper
-      id="s11" number={11} accent="red"
+    <SectionWrapper id="s11" number={11}
       title="La Maldición de los Penales"
-      subtitle="0 de 2 en tandas mundialistas. P(ganar penales) estimada: 13.3%. La estadística más oscura de la selección."
-      quote="1986: Schumacher. 1994: Mikhailov. Dos porteros, dos noches eternas. Pero algún día esa racha se rompe."
-    >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* historial */}
-        <div className="bg-mx-card border border-mx-border rounded-2xl overflow-hidden">
-          <div className="p-4 border-b border-mx-border">
-            <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold">
-              Historial México en penales mundialistas
-            </p>
+      subtitle="La única vez que México ganó en penales en un Mundial fue en 1986 ante Alemania Occidental — el partido más cercano a la gloria en toda su historia. Desde entonces, perdió con Bulgaria en 1994 en tanda de penales y contra Países Bajos en 2014 con un penal cobrado en el 94 que abrió la herida de otra manera. No son exactamente los penales el problema — es que el partido siempre termina en el peor momento posible.">
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+
+        {/* ── 1. HISTORIAL BARRAS HORIZONTALES ── */}
+        <div className="card">
+          <div className="chart-label">
+            Historial México en tandas de penales · P(ganar): 13%
           </div>
-          {HISTORIAL.map((h) => (
-            <div key={h.año} className="flex items-center gap-4 p-5 border-b border-mx-border/50 last:border-0">
-              <div className="flex items-center gap-2">
-                <Flag code="mx" className="w-8 h-6 rounded shadow" alt="México" />
-                <span className="text-xs text-gray-500">vs</span>
-                <Flag code={h.flagCode} className="w-8 h-6 rounded shadow" alt={h.rival} />
+
+          {HIST.map((h, i) => {
+            const isGana = h.result === "G";
+            const bg     = isGana ? MX_GREEN : MX_RED;
+            const isDiv  = i === 2; // línea divisoria Mundiales/CONCACAF
+            return (
+              <div key={i}>
+                {isDiv && (
+                  <div style={{
+                    borderTop: "1px dashed var(--border-mid)",
+                    margin: "6px 0 4px",
+                    fontFamily: "var(--mono)", fontSize: 8,
+                    color: "var(--text-muted)", textAlign: "center",
+                  }}>
+                    CONCACAF ↑ · Mundiales ↓
+                  </div>
+                )}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  {/* barra de color */}
+                  <div style={{
+                    flex: 1, height: 34, borderRadius: 4,
+                    background: bg, opacity: 0.85,
+                    display: "flex", alignItems: "center", paddingLeft: 10,
+                  }}>
+                    <span style={{
+                      fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+                      color: "#fff", whiteSpace: "nowrap",
+                    }}>
+                      {h.label}
+                    </span>
+                  </div>
+                  {/* etiqueta */}
+                  <div style={{ textAlign: "right", minWidth: 70 }}>
+                    <div style={{
+                      fontFamily: "var(--mono)", fontSize: 11, fontWeight: 900,
+                      color: isGana ? MX_GREEN : MX_RED,
+                    }}>
+                      {isGana ? "GANA ✓" : "PIERDE ✗"}
+                    </div>
+                    <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text-muted)" }}>
+                      {h.tipo}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-bold text-white">{h.rival} — {h.año}</p>
-                <p className="text-xs text-gray-500">{h.ronda} · {h.marcador} al 90' · Penales {h.penales}</p>
+            );
+          })}
+
+          {/* Stats */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 10 }}>
+            {[
+              ["0",     "victorias",    MX_RED    ],
+              ["5",     "tandas totales","#374151" ],
+              ["13.3%", "P(ganar)",     MX_RED    ],
+            ].map(([v, l, c]) => (
+              <div key={l} style={{ border: "1px solid var(--border-mid)", borderRadius: 6, padding: "8px 6px", textAlign: "center" }}>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 18, fontWeight: 900, color: c }}>{v}</div>
+                <div style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text-muted)", marginTop: 1 }}>{l}</div>
               </div>
-              <span className="text-xs font-black px-3 py-1.5 rounded-full bg-mx-red/10 text-mx-red border border-mx-red/30">
-                ELIMINADOS
-              </span>
-            </div>
-          ))}
-          <div className="p-4 bg-zinc-900/50">
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div>
-                <p className="text-2xl font-black text-mx-red">0</p>
-                <p className="text-xs text-gray-500">victorias</p>
-              </div>
-              <div>
-                <p className="text-2xl font-black text-gray-400">2</p>
-                <p className="text-xs text-gray-500">tandas totales</p>
-              </div>
-              <div>
-                <p className="text-2xl font-black text-mx-red">13.3%</p>
-                <p className="text-xs text-gray-500">P(ganar) estimada</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* probabilidades por ronda */}
-        <div className="bg-mx-card border border-mx-border rounded-2xl p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-semibold mb-4">
-            P(ET) y P(penales) por ronda — rivales esperados
-          </p>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={PENALES_RONDA} margin={{ top: 0, right: 16, left: -10, bottom: 0 }}>
-              <CartesianGrid vertical={false} stroke={GRID_CLR} />
-              <XAxis dataKey="ronda" tick={{ fill: LABEL_CLR, fontSize: 12, fontWeight: 600 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: AXIS_CLR, fontSize: 11 }} unit="%" axisLine={false} tickLine={false} />
+        {/* ── 2. BARRAS P(ET) Y P(PENALES) POR RONDA ── */}
+        <div className="card">
+          <div className="chart-label">P(ET) y P(penales) por ronda según rival esperado</div>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={RONDAS} margin={{ top: 0, right: 10, left: -10, bottom: 0 }} barCategoryGap="30%">
+              <CartesianGrid vertical={false} stroke={GRID_CLR} strokeDasharray="3 3" />
+              <XAxis dataKey="r" tick={{ fill: "#444", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: AXIS_CLR, fontSize: 10 }} unit="%" axisLine={false} tickLine={false} />
               <Tooltip {...TOOLTIP_STYLE} formatter={(v) => [`${v}%`]} />
-              <Legend wrapperStyle={{ color: LABEL_CLR, fontSize: 11 }} />
-              <Bar dataKey="pET"     name="P(tiempo extra)" fill={MX_GOLD}  radius={[0,0,0,0]} opacity={0.8} />
-              <Bar dataKey="pPen"    name="P(penales)"       fill={MX_RED}   radius={[4,4,0,0]} opacity={0.8} />
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+              <Bar dataKey="pET"  name="P(tiempo extra)" fill={MX_MED} radius={[3,3,0,0]} opacity={0.85} />
+              <Bar dataKey="pPen" name="P(penales)"       fill={MX_RED} radius={[3,3,0,0]} opacity={0.85} />
             </BarChart>
           </ResponsiveContainer>
 
-          <div className="mt-4 p-3 bg-mx-red/5 border border-mx-red/20 rounded-lg">
-            <p className="text-xs text-gray-400 leading-relaxed">
-              Si México llega a penales en R32 (P=19.1%), la probabilidad de pasar con el historial actual es{" "}
-              <span className="text-mx-red font-bold">~13.3%</span>.
-              La solución más simple: ganar en tiempo regular.
-            </p>
+          <div style={{
+            marginTop: 10, padding: "10px 12px",
+            border: "1px solid var(--border-mid)",
+            borderRadius: 4, fontSize: 11,
+            fontFamily: "var(--serif)", color: "var(--text-sec)", lineHeight: 1.55,
+          }}>
+            Si México llega a penales en R32 (P=19.1%), la probabilidad de pasar con el historial actual es{" "}
+            <strong style={{ color: MX_RED }}>~13.3%</strong>. La solución más simple: ganar en tiempo regular.
           </div>
         </div>
-      </div>
 
-      <div className="mt-6 p-5 bg-mx-green/5 border border-mx-green/20 rounded-xl">
-        <p className="text-sm text-gray-300 leading-relaxed">
-          <span className="text-mx-green font-bold">La esperanza:</span> Toda racha se rompe.
-          La solución no es mejorar los penales en dos semanas — es dominar los partidos para no llegar ahí.
-          Como en 2010 vs Francia: un gol de Hernández en el 64' y a casa con tres puntos. Así de sencillo.
-        </p>
+        {/* ── 3. CURVA P(ET/PENALES) VS ELO DIFF ── */}
+        <div className="card">
+          <div className="chart-label">P(ET/penales) según equilibrio del partido</div>
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={CURVE} margin={{ top: 8, right: 16, left: -10, bottom: 8 }}>
+              <CartesianGrid stroke={GRID_CLR} strokeDasharray="3 3" />
+              <XAxis dataKey="diff" tick={{ fill: AXIS_CLR, fontSize: 9 }} axisLine={false} tickLine={false}
+                label={{ value: "Diferencia Elo →", position: "insideBottomRight", offset: 0, fill: AXIS_CLR, fontSize: 9 }} />
+              <YAxis tick={{ fill: AXIS_CLR, fontSize: 10 }} unit="%" axisLine={false} tickLine={false} />
+              <Tooltip {...TOOLTIP_STYLE} formatter={(v, n) => [`${v}%`, n]}
+                labelFormatter={(v) => `Elo diff: ${v}`} />
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+              <Line dataKey="pET"  name="P(tiempo extra)" stroke={MX_MED} strokeWidth={2.5} dot={false} type="monotone" />
+              <Line dataKey="pPen" name="P(penales)"       stroke={MX_RED} strokeWidth={2.5} dot={false} type="monotone" />
+              {/* Marcadores por ronda */}
+              {MARKERS.map((m) => (
+                <ReferenceDot key={m.ronda} x={m.diff} y={m.pET}
+                  r={5} fill={MX_MED} stroke="#fff" strokeWidth={1.5}
+                  label={{ value: m.ronda, position: "top", fontSize: 8, fill: "var(--text-muted)", fontFamily: "ui-monospace,monospace" }} />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+          <p style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text-muted)", marginTop: 6 }}>
+            Elo diff = 0 → partidos muy parejos (más probable ET) · diff ↑ → rival dominante (menos ET)
+          </p>
+        </div>
+
       </div>
     </SectionWrapper>
   );
